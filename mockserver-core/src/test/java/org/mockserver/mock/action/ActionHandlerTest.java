@@ -85,6 +85,7 @@ public class ActionHandlerTest {
 
     private HttpStateHandler mockHttpStateHandler;
     private HttpRequest request;
+    private HttpRequest templatedRequest;
     private HttpResponse response;
     private SettableFuture<HttpResponse> responseFuture;
     private Expectation expectation;
@@ -101,6 +102,7 @@ public class ActionHandlerTest {
 
         initMocks(this);
         request = request("some_path");
+        templatedRequest = request("some_template");
         response = response("some_body");
         responseFuture = SettableFuture.create();
         responseFuture.set(response);
@@ -114,6 +116,7 @@ public class ActionHandlerTest {
         when(mockHttpForwardTemplateActionHandler.handle(any(HttpTemplate.class), any(HttpRequest.class))).thenReturn(responseFuture);
         when(mockHttpForwardClassCallbackActionHandler.handle(any(HttpClassCallback.class), any(HttpRequest.class))).thenReturn(responseFuture);
         when(mockHttpOverrideForwardedRequestActionHandler.handle(any(HttpOverrideForwardedRequest.class), any(HttpRequest.class))).thenReturn(responseFuture);
+        when(mockHttpForwardTemplateActionHandler.getTemplatedRequest()).thenReturn(templatedRequest);
     }
 
     @AfterClass
@@ -220,8 +223,8 @@ public class ActionHandlerTest {
         // then
         verify(mockHttpForwardTemplateActionHandler).handle(template, request);
         verify(mockResponseWriter).writeResponse(request, response, false);
-        verify(mockHttpStateHandler, times(1)).log(new RequestResponseLogEntry(request, response));
-        verify(mockLogFormatter).info(EXPECTATION_RESPONSE, request, "returning response:{}for request:{}for action:{}", response, request, template);
+        verify(mockHttpStateHandler, times(1)).log(new RequestResponseLogEntry(templatedRequest, response));
+        verify(mockLogFormatter).info(EXPECTATION_RESPONSE, request, "returning response:{}for request:{}for action:{}", response, templatedRequest, template);
     }
 
     @Test

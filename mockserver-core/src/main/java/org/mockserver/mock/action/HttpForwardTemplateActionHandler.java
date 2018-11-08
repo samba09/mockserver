@@ -18,11 +18,16 @@ public class HttpForwardTemplateActionHandler extends HttpForwardAction {
 
     private JavaScriptTemplateEngine javaScriptTemplateEngine;
     private VelocityTemplateEngine velocityTemplateEngine;
+    HttpRequest templatedRequest;
 
     public HttpForwardTemplateActionHandler(MockServerLogger logFormatter, NettyHttpClient httpClient) {
         super(logFormatter, httpClient);
         javaScriptTemplateEngine = new JavaScriptTemplateEngine(logFormatter);
         velocityTemplateEngine = new VelocityTemplateEngine(logFormatter);
+    }
+
+    public HttpRequest getTemplatedRequest() {
+        return templatedRequest;
     }
 
     public SettableFuture<HttpResponse> handle(HttpTemplate httpTemplate, HttpRequest originalRequest) {
@@ -38,7 +43,7 @@ public class HttpForwardTemplateActionHandler extends HttpForwardAction {
                 throw new RuntimeException("Unknown no template engine available for " + httpTemplate.getTemplateType());
         }
         if (templateEngine != null) {
-            HttpRequest templatedRequest = templateEngine.executeTemplate(httpTemplate.getTemplate(), originalRequest, HttpRequestDTO.class);
+            templatedRequest = templateEngine.executeTemplate(httpTemplate.getTemplate(), originalRequest, HttpRequestDTO.class);
             if (templatedRequest != null) {
                 return sendRequest(templatedRequest, null);
             }

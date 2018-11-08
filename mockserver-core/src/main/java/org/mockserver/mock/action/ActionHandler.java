@@ -159,13 +159,19 @@ public class ActionHandler {
                     scheduler.schedule(new Runnable() {
                         public void run() {
                             final SettableFuture<HttpResponse> responseFuture = httpForwardTemplateActionHandler.handle(httpTemplate, request);
+                            final HttpRequest templatedRequest = httpForwardTemplateActionHandler.getTemplatedRequest();
                             scheduler.submit(responseFuture, new Runnable() {
                                 public void run() {
                                     try {
                                         HttpResponse response = responseFuture.get();
                                         responseWriter.writeResponse(request, response, false);
+<<<<<<< HEAD
                                         httpStateHandler.log(new RequestResponseLogEntry(request, response));
                                         mockServerLogger.info(EXPECTATION_RESPONSE, request, "returning response:{}for request:{}for action:{}", response, request, action);
+=======
+                                        httpStateHandler.log(new RequestResponseLogEntry(templatedRequest, response, System.currentTimeMillis() / 1000L));
+                                        mockServerLogger.info(EXPECTATION_RESPONSE, request, "returning response:{}for request:{}for action:{}", response, templatedRequest, action);
+>>>>>>> b661eb85... Logs now contain changed reponses from request template
                                     } catch (Exception ex) {
                                         mockServerLogger.error(request, ex, ex.getMessage());
                                     }
